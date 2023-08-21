@@ -18,3 +18,7 @@ To installl and execute Client and Server you need the SFML Library
 
 Install Guide:
 https://www.sfml-dev.org/tutorials/2.6/start-vc.php
+
+## Project Draft
+
+https://functional-eyebrow-af6.notion.site/MultiChat-App-a40aa7d571cc4d82bebc5eaae0a5a002?pvs=4
