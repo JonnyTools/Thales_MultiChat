@@ -1,5 +1,8 @@
 #include "servernetwork.hpp"
-
+/*
+*   Instanciate Server
+*   Start Listening 
+*/
 ServerNetwork::ServerNetwork(unsigned short port) : listen_port(port)
 {
     logl("Chat Server Started");
@@ -9,11 +12,16 @@ ServerNetwork::ServerNetwork(unsigned short port) : listen_port(port)
         logl("Could not listen");
     }
 }
-
+/*
+*   Setup Connection for new Client One Every Cycle  
+*   Store them in SocketObj Vector 
+*/
 void ServerNetwork::ConnectClients(std::vector<sf::TcpSocket*>* client_array)
 {
     while (true)
-    {
+    {   /*
+        *   Allokate Space for TcpSocket Object
+        */
         sf::TcpSocket* new_client = new sf::TcpSocket();
         if (listener.accept(*new_client) == sf::Socket::Done)
         {
@@ -23,6 +31,9 @@ void ServerNetwork::ConnectClients(std::vector<sf::TcpSocket*>* client_array)
         }
         else
         {
+            /*
+            * Free Space 
+            */
             logl("Server listener error, restart the server");
             delete (new_client);
             break;
@@ -30,6 +41,10 @@ void ServerNetwork::ConnectClients(std::vector<sf::TcpSocket*>* client_array)
     }
 }
 
+/*
+    Close Sockets of disconnecting Client
+    Free up Space in Client List and Socket Objekt
+*/
 void ServerNetwork::DisconnectClient(sf::TcpSocket* socket_pointer, size_t position)
 {
     logl("Client " << socket_pointer->getRemoteAddress() << ":" << socket_pointer->getRemotePort() << " disconnected, removing");
@@ -38,6 +53,10 @@ void ServerNetwork::DisconnectClient(sf::TcpSocket* socket_pointer, size_t posit
     client_array.erase(client_array.begin() + position);
 }
 
+/*
+    Check Clientlist Send to All but the sender
+    Check if Messages are send correctly
+*/
 void ServerNetwork::BroadcastPacket(sf::Packet& packet, sf::IpAddress exclude_address, unsigned short port)
 {
     for (size_t iterator = 0; iterator < client_array.size(); iterator++)
@@ -52,7 +71,10 @@ void ServerNetwork::BroadcastPacket(sf::Packet& packet, sf::IpAddress exclude_ad
         }
     }
 }
-
+/*
+*   Check if Client Dissconnects 
+*   If Message is here Broadcast Message and Display it
+*/
 void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
 {
     sf::Packet packet;
@@ -74,7 +96,9 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         logl(client->getRemoteAddress().toString() << ":" << client->getRemotePort() << " '" << received_message << "'");
     }
 }
-
+/*
+*   Polling to Check if Messages Arrived
+*/
 void ServerNetwork::ManagePackets()
 {
     while (true)
@@ -90,7 +114,15 @@ void ServerNetwork::ManagePackets()
 
 void ServerNetwork::Run()
 {
-    std::thread connetion_thread(&ServerNetwork::ConnectClients, this, &client_array);
+    /**
+    *   Construct Threads to Handel ConnectClientsClients(this, client_array)
+    *   Endless Loop
+    **/
 
+    std::thread connetion_thread(&ServerNetwork::ConnectClients, this, &client_array);
+    /*
+    *  
+    *   Endless Loop
+    */
     ManagePackets();
 }

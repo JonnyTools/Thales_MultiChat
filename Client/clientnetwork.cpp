@@ -1,10 +1,16 @@
 #include "clientnetwork.hpp"
 
+/*
+    Init Client Network
+*/
 ClientNetwork::ClientNetwork()
 {
     logl("Chat Client Started");
 }
 
+/*
+    Try to connect to Server IP Adress and Port via Socket
+*/
 void ClientNetwork::Connect(const char* address, unsigned short port)
 {
     if (socket.connect(address, port) != sf::Socket::Done)
@@ -17,7 +23,12 @@ void ClientNetwork::Connect(const char* address, unsigned short port)
         logl("Connected to the server\n");
     }
 }
+/*
+    Polling: Check if Socket has Recived Messages in last Packet
+    Display it on Console
 
+    Wait and try again
+*/
 void ClientNetwork::ReceivePackets(sf::TcpSocket* socket)
 {
     while (true)
@@ -34,7 +45,9 @@ void ClientNetwork::ReceivePackets(sf::TcpSocket* socket)
         std::this_thread::sleep_for((std::chrono::milliseconds)250);
     }
 }
-
+/*
+    If Socket is Ready and Consol Message is there send it via socket
+*/
 void ClientNetwork::SendPacket(sf::Packet& packet)
 {
     if (packet.getDataSize() > 0 && socket.send(packet) != sf::Socket::Done)
@@ -43,6 +56,12 @@ void ClientNetwork::SendPacket(sf::Packet& packet)
     }
 }
 
+/*
+    Main Thread: 
+    Create ReciverThread for Server Messages
+    Check if Input is enterd in Console 
+    Send Console Text to Server 
+*/
 void ClientNetwork::Run()
 {
     std::thread reception_thred(&ClientNetwork::ReceivePackets, this, &socket);
